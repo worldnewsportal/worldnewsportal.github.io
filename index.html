@@ -3,65 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نبض العالم | أخبار مفصلة بالذكاء الاصطناعي</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>وكالة أنباء الذكاء الاصطناعي | أخبار حصرية</title>
+    <!-- خطوط جوجل (خط تجول الاحترافي للأخبار) -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <!-- أيقونات FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        :root { --primary: #e63946; --dark: #1d3557; --light: #f1faee; }
-        body { font-family: 'Cairo', sans-serif; background: #f4f7f6; margin: 0; padding: 0; }
-        header { background: var(--dark); color: white; padding: 20px; text-align: center; }
-        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; padding: 20px; max-width: 1200px; margin: auto; }
-        .news-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .news-img { width: 100%; height: 200px; object-fit: cover; }
-        .news-content { padding: 15px; }
-        .read-btn { display: block; width: 100%; text-align: center; background: var(--primary); color: white; padding: 10px; text-decoration: none; border-radius: 8px; font-weight: bold; cursor: pointer; border: none; font-family: 'Cairo'; }
+        :root {
+            --primary: #c1121f; /* أحمر إخباري فخم */
+            --secondary: #003049; /* أزرق داكن */
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --text-muted: #6c757d;
+        }
+
+        /* الوضع الليلي */
+        body.dark-mode {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --secondary: #1a1a1a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); transition: 0.3s; }
+        a { text-decoration: none; color: inherit; }
+
+        /* شريط الأخبار العاجلة */
+        .breaking-news { background: var(--primary); color: white; display: flex; align-items: center; padding: 5px 20px; font-weight: bold; font-size: 14px; }
+        .breaking-title { background: #fff; color: var(--primary); padding: 3px 10px; border-radius: 4px; margin-left: 15px; }
+        .marquee { overflow: hidden; white-space: nowrap; width: 100%; }
+        .marquee span { display: inline-block; animation: marquee 20s linear infinite; }
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+        /* القائمة العلوية (النافبار) */
+        .navbar { background: var(--secondary); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .logo { font-size: 28px; font-weight: 900; }
+        .logo span { color: var(--primary); }
+        .nav-links button { background: none; border: none; color: white; font-size: 16px; margin: 0 10px; cursor: pointer; font-family: 'Tajawal'; transition: 0.3s; }
+        .nav-links button:hover { color: var(--primary); }
+        .theme-toggle { background: #fff; color: var(--secondary); border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+
+        /* مساحات الإعلانات */
+        .ad-space { width: 90%; max-width: 900px; height: 90px; background: #e9ecef; border: 2px dashed #ced4da; margin: 20px auto; display: flex; justify-content: center; align-items: center; color: #adb5bd; font-weight: bold; border-radius: 8px; }
+
+        /* حاوية الأخبار الرئيسية */
+        .container { width: 95%; max-width: 1200px; margin: 30px auto; }
+        .section-title { font-size: 24px; font-weight: 800; border-right: 5px solid var(--primary); padding-right: 15px; margin-bottom: 25px; color: var(--secondary); }
         
-        /* تصميم نافذة قراءة المقال المفصل */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); overflow-y: auto; }
-        .modal-content { background-color: white; margin: 5% auto; padding: 30px; border-radius: 15px; width: 90%; max-width: 800px; position: relative; }
-        .close-btn { position: absolute; top: 15px; left: 20px; font-size: 30px; font-weight: bold; cursor: pointer; color: red; }
-        .article-img { width: 100%; max-height: 400px; object-fit: cover; border-radius: 10px; margin-bottom: 20px; }
-        .article-body { font-size: 18px; line-height: 1.8; color: #333; margin-bottom: 30px;}
-        .comments-section { border-top: 2px solid #ddd; padding-top: 20px; }
+        /* شبكة الأخبار */
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        .news-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; position: relative; }
+        .news-card:hover { transform: translateY(-7px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .news-img-wrapper { position: relative; width: 100%; height: 220px; overflow: hidden; }
+        .news-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .news-card:hover .news-img { transform: scale(1.05); }
+        .category-badge { position: absolute; top: 15px; right: 15px; background: var(--primary); color: white; padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; z-index: 10; }
+        .news-content { padding: 20px; }
+        .news-title { font-size: 18px; font-weight: 800; margin-bottom: 10px; line-height: 1.5; color: var(--text-color); }
+        .news-meta { display: flex; justify-content: space-between; color: var(--text-muted); font-size: 13px; margin-bottom: 15px; border-top: 1px solid #eee; padding-top: 15px; }
+        .read-more { display: block; text-align: center; width: 100%; background: #f1f3f5; color: var(--secondary); padding: 10px; border-radius: 6px; font-weight: bold; transition: 0.3s; }
+        .news-card:hover .read-more { background: var(--primary); color: white; }
+
+        /* الفوتر (الأسفل) */
+        footer { background: var(--secondary); color: white; text-align: center; padding: 30px 20px; margin-top: 50px; }
+        .footer-links { margin: 20px 0; }
+        .footer-links button { background: none; border: none; color: #ccc; margin: 0 15px; cursor: pointer; font-size: 15px; transition: 0.3s; font-family: 'Tajawal'; }
+        .footer-links button:hover { color: var(--primary); }
+
+        /* النوافذ المنبثقة (المقال + صفحات أدسنس) */
+        .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(5px); overflow-y: auto; }
+        .modal-content { background-color: var(--card-bg); margin: 5% auto; padding: 40px; border-radius: 15px; width: 90%; max-width: 800px; position: relative; color: var(--text-color); box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .close-btn { position: absolute; top: 20px; left: 25px; font-size: 35px; font-weight: bold; cursor: pointer; color: #888; transition: 0.3s; }
+        .close-btn:hover { color: var(--primary); }
+        .article-img { width: 100%; height: 400px; object-fit: cover; border-radius: 12px; margin: 20px 0; }
+        .article-body { font-size: 18px; line-height: 2; color: var(--text-color); margin-bottom: 30px; text-align: justify; }
+        
+        /* قسم التعليقات */
+        .comments-wrapper { border-top: 2px solid #eee; padding-top: 30px; margin-top: 30px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>📰 نبض العالم الإخباري</h1>
-        <p>تغطية شاملة ومقالات مفصلة تُدار بالذكاء الاصطناعي بنسبة 100%</p>
-    </header>
-
-    <div class="news-grid" id="news-container">
-        <h3 style="text-align:center; width: 100%;">جاري تحميل أحدث التقارير...</h3>
+    <!-- شريط العاجل -->
+    <div class="breaking-news">
+        <div class="breaking-title">عاجل 🔥</div>
+        <div class="marquee">
+            <span>مرحباً بك في أضخم وكالة أنباء تعمل بالذكاء الاصطناعي - يتم تحديث الأخبار تلقائياً على مدار الساعة...</span>
+        </div>
     </div>
 
-    <!-- نافذة قراءة المقال المفصل -->
+    <!-- النافبار -->
+    <nav class="navbar">
+        <div class="logo">AI<span>News</span></div>
+        <div class="nav-links">
+            <button onclick="document.getElementById('news-container').scrollIntoView();">الرئيسية</button>
+            <button onclick="openPage('about')">من نحن</button>
+            <button onclick="openPage('privacy')">سياسة الخصوصية</button>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i> وضع ليلي</button>
+    </nav>
+
+    <!-- إعلان أدسنس العلوي -->
+    <div class="ad-space">
+        <!-- ضع كود جوجل أدسنس هنا -->[مساحة إعلانية - 728x90]
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="container">
+        <h2 class="section-title">أحدث التقارير الإخبارية</h2>
+        
+        <div class="news-grid" id="news-container">
+            <h3 style="text-align:center; width: 100%; padding: 50px;">⏳ جاري جلب الأخبار من الخوادم...</h3>
+        </div>
+    </main>
+
+    <!-- إعلان أدسنس السفلي -->
+    <div class="ad-space">
+        <!-- ضع كود جوجل أدسنس هنا -->
+        [مساحة إعلانية - 728x90]
+    </div>
+
+    <!-- الفوتر -->
+    <footer>
+        <h2>وكالة AI News الإخبارية</h2>
+        <p>مصدرك الأول للأخبار الموثوقة والمحللة عبر الذكاء الاصطناعي.</p>
+        <div class="footer-links">
+            <button onclick="openPage('about')">من نحن</button>
+            <button onclick="openPage('privacy')">سياسة الخصوصية</button>
+            <button onclick="openPage('contact')">اتصل بنا</button>
+        </div>
+        <p>&copy; 2026 جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <!-- نافذة عرض الخبر -->
     <div id="articleModal" class="modal">
         <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <span class="close-btn" onclick="closeModal('articleModal')">&times;</span>
+            <span id="modalCategory" class="category-badge" style="position: static; display: inline-block;"></span>
+            <h1 id="modalTitle" style="margin-top: 15px; font-size: 28px;"></h1>
+            
+            <div style="color: var(--text-muted); margin-top: 10px;">
+                <i class="far fa-clock"></i> <span id="modalDate"></span>
+            </div>
+
             <img id="modalImg" class="article-img" src="" alt="صورة الخبر">
-            <h2 id="modalTitle" style="color: var(--dark);"></h2>
-            <p style="color: gray; font-size: 14px;" id="modalDate"></p>
+            
+            <!-- إعلان داخل المقال -->
+            <div class="ad-space" style="height: 50px; margin: 10px auto;">[إعلان وسط المقال]</div>
+
             <div id="modalBody" class="article-body"></div>
             
-            <!-- قسم التعليقات (Disqus) -->
-            <div class="comments-section">
-                <h3>💬 التعليقات</h3>
+            <!-- التعليقات -->
+            <div class="comments-wrapper">
+                <h3><i class="far fa-comments"></i> شاركنا رأيك</h3>
                 <div id="disqus_thread"></div>
             </div>
         </div>
     </div>
 
-    <script>
-        let allNews =[];
+    <!-- نافذة الصفحات الثابتة (لأدسنس) -->
+    <div id="pageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('pageModal')">&times;</span>
+            <h1 id="pageTitle" style="border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px;"></h1>
+            <div id="pageContent" class="article-body"></div>
+        </div>
+    </div>
 
+    <!-- الأكواد البرمجية للواجهة -->
+    <script>
+        // 1. الوضع الليلي
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const btn = document.querySelector('.theme-toggle');
+            if(document.body.classList.contains('dark-mode')){
+                btn.innerHTML = '<i class="fas fa-sun"></i> وضع نهاري';
+            } else {
+                btn.innerHTML = '<i class="fas fa-moon"></i> وضع ليلي';
+            }
+        }
+
+        // 2. جلب الأخبار
+        let allNews =[];
         async function fetchNews() {
             try {
                 const response = await fetch('news.json');
                 allNews = await response.json();
                 displayNews(allNews);
             } catch (error) {
-                document.getElementById('news-container').innerHTML = "<h3>لم يتم العثور على أخبار. تأكد من تشغيل البوت.</h3>";
+                document.getElementById('news-container').innerHTML = "<h3 style='color:red; text-align:center;'>لم يتم العثور على أخبار حتى الآن. البوت يعمل على جلبها.</h3>";
             }
         }
 
@@ -70,62 +203,82 @@
             container.innerHTML = "";
             newsArray.forEach((news, index) => {
                 const card = `
-                    <div class="news-card">
-                        <img src="${news.image}" class="news-img" alt="صورة">
+                    <div class="news-card" onclick="openArticle(${index})">
+                        <div class="news-img-wrapper">
+                            <span class="category-badge">${news.category}</span>
+                            <img src="${news.image}" class="news-img" alt="صورة">
+                        </div>
                         <div class="news-content">
-                            <span style="color: #e63946; font-weight: bold; font-size: 12px;">${news.category}</span>
-                            <h3 style="margin: 10px 0;">${news.title}</h3>
-                            <button class="read-btn" onclick="openArticle(${index})">اقرأ التقرير المفصل 📖</button>
+                            <h3 class="news-title">${news.title}</h3>
+                            <div class="news-meta">
+                                <span><i class="far fa-clock"></i> ${news.date.split(' ')[0]}</span>
+                                <span><i class="fas fa-robot"></i> AI Report</span>
+                            </div>
+                            <span class="read-more">التفاصيل الكاملة <i class="fas fa-arrow-left"></i></span>
                         </div>
                     </div>
                 `;
                 container.innerHTML += card;
             });
-        }
-
+            // 3. فتح المقال (نافذة منبثقة)
         function openArticle(index) {
             const news = allNews[index];
             document.getElementById('modalTitle').innerText = news.title;
+            document.getElementById('modalCategory').innerText = news.category;
             document.getElementById('modalImg').src = news.image;
-            document.getElementById('modalDate').innerText = "تاريخ النشر: " + news.date;
+            document.getElementById('modalDate').innerText = news.date;
             document.getElementById('modalBody').innerHTML = news.detailed_article;
             document.getElementById('articleModal').style.display = "block";
-
-            // تحميل وتحديث تعليقات Disqus بناءً على ID الخبر
+            
+            // تحميل تعليقات ديسكاس
             loadDisqus(news.id, news.original_link);
         }
 
-        function closeModal() {
-            document.getElementById('articleModal').style.display = "none";
+        // 4. فتح صفحات "من نحن" و "الخصوصية"
+        function openPage(pageType) {
+            const modal = document.getElementById('pageModal');
+            const title = document.getElementById('pageTitle');
+            const body = document.getElementById('pageContent');
+            
+            if(pageType === 'about') {
+                title.innerText = "من نحن";
+                body.innerHTML = `
+                    <h3>نحن نبض العالم</h3>
+                    <p>منصة إخبارية تقنية تعتمد على الذكاء الاصطناعي لجلب وتحليل الأخبار من المصادر العالمية الموثوقة لحظة بلحظة. هدفنا تقديم محتوى مفصل، محايد، ومصنّف ليناسب احتياجات القارئ العربي في عصر السرعة.</p>
+                `;
+            } else if(pageType === 'privacy') {
+                title.innerText = "سياسة الخصوصية";
+                body.innerHTML = `
+                    <h3>سياسة الخصوصية</h3>
+                    <p>نحن نحترم خصوصيتك. نستخدم ملفات تعريف الارتباط لتحسين تجربة المستخدم وعرض إعلانات مناسبة عبر Google AdSense. لا نقوم بجمع بيانات شخصية بدون موافقتك.</p>
+                `;
+            } else if(pageType === 'contact') {
+                title.innerText = "اتصل بنا";
+                body.innerHTML = `<p>يمكنك التواصل معنا عبر البريد الإلكتروني: contact@yourwebsite.com</p>`;
+            }
+            
+            modal.style.display = "block";
         }
 
-        // إعداد نظام تعليقات Disqus
+        // إغلاق أي نافذة
+        function closeModal(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        // 5. نظام تعليقات Disqus (تذكر تغيير الاسم المختصر)
         function loadDisqus(newsId, newsUrl) {
-            // === مهم جداً: ضع اسم موقعك في ديسكاس هنا ===
-            var disqus_shortname = 'YOUR_DISQUS_SHORTNAME'; 
-            
+            var disqus_shortname = 'YOUR_DISQUS_SHORTNAME'; // ضع هنا اسمك في ديسكاس
             if (window.DISQUS) {
-                DISQUS.reset({
-                    reload: true,
-                    config: function () {  
-                        this.page.identifier = newsId;  
-                        this.page.url = "https://yourwebsite.com/news#" + newsId;
-                    }
-                });
+                DISQUS.reset({ reload: true, config: function () { this.page.identifier = newsId; this.page.url = window.location.href; } });
             } else {
-                window.disqus_config = function () {
-                    this.page.identifier = newsId;
-                    this.page.url = "https://yourwebsite.com/news#" + newsId;
-                };
-                (function() {
-                    var d = document, s = d.createElement('script');
-                    s.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
-                    s.setAttribute('data-timestamp', +new Date());
-                    (d.head || d.body).appendChild(s);
-                })();
+                var d = document, s = d.createElement('script');
+                s.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
             }
         }
 
+        // تشغيل البداية
         fetchNews();
     </script>
 </body>
