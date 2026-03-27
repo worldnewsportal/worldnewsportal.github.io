@@ -190,11 +190,24 @@
         let allNews =[];
         async function fetchNews() {
             try {
-                const response = await fetch('news.json');
+                // نستخدم ./ لضمان البحث في نفس المجلد ونضيف توقيت عشوائي لمنع الكاش
+                const response = await fetch('./news.json?t=' + new Date().getTime());
+                
+                if (!response.ok) {
+                    throw new Error("لم يتم العثور على ملف الأخبار");
+                }
+
                 allNews = await response.json();
-                displayNews(allNews);
+                console.log("تم تحميل الأخبار بنجاح:", allNews); // فحص في الكونسول
+
+                if (allNews.length === 0) {
+                    document.getElementById('news-container').innerHTML = "<h3>الملف موجود ولكنه فارغ.. انتظر جولة البوت القادمة.</h3>";
+                } else {
+                    displayNews(allNews);
+                }
             } catch (error) {
-                document.getElementById('news-container').innerHTML = "<h3 style='color:red; text-align:center;'>لم يتم العثور على أخبار حتى الآن. البوت يعمل على جلبها.</h3>";
+                console.error("خطأ:", error);
+                document.getElementById('news-container').innerHTML = "<h3>عذراً، حدث خطأ أثناء الاتصال بقاعدة البيانات.</h3>";
             }
         }
 
