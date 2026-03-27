@@ -14,42 +14,37 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          
+          cache: "pip"
+          cache-dependency-path: requirements.txt
 
       - name: Install Dependencies
         run: |
-          pip install --upgrade pip wheel setuptools
-          pip install feedparser==6.0.11
-          pip install "google-generativeai>=0.8.0"
-          pip install newspaper3k==0.2.8
-          pip install "lxml>=5.0.0" lxml_html_clean
-          pip install nltk requests Pillow
-          python -c "import nltk; nltk.download('punkt', quiet=True); nltk.download('punkt_tab', quiet=True); nltk.download('stopwords', quiet=True); print('NLTK OK')"
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          python -c "import nltk; nltk.download('punkt', quiet=True); nltk.download('punkt_tab', quiet=True); nltk.download('stopwords', quiet=True)"
 
       - name: Run AI News Fetcher
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python update_news.py
 
-      - name: Verify news.json
-        run: python -c "import json, sys; d=json.load(open('news.json',encoding='utf-8')); c=d.get('totalCount',0); print(f'news.json OK — {c} articles'); sys.exit(0)"
+      - name: Verify Output
+        run: python -c "import json,sys; d=json.load(open('news.json',encoding='utf-8')); print(f\"OK — {d.get('totalCount',0)} articles saved\")"
 
-      - name: Commit and Push Changes
+      - name: Commit and Push
         run: |
-          git config --global user.name 'AI-News-Bot'
-          git config --global user.email 'bot@news-portal.com'
+          git config --global user.name "AI-News-Bot"
+          git config --global user.email "bot@news-portal.com"
           git add news.json
           if git diff --staged --quiet; then
-            echo "No new articles this run"
+            echo "No new articles this run."
           else
             COUNT=$(python -c "import json; print(json.load(open('news.json')).get('totalCount',0))")
-            git commit -m "Auto-update: ${COUNT} articles — $(date +'%Y-%m-%d %H:%M UTC')"
+            git commit -m "bot: update news archive [${COUNT} articles] $(date +'%Y-%m-%d %H:%M UTC')"
             git push
           fi
