@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>لوحة تحكم بوابة الأنباء العالمية</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f0f1a;
+    --surface: #1a1a2e;
+    --surface2: #16213e;
+    --accent: #e94560;
+    --accent2: #0f3460;
+    --text: #eaeaea;
+    --text2: #a0a0b0;
+    --success: #2ecc71;
+    --warning: #f39c12;
+    --danger: #e74c3c;
+    --info: #3498db;
+    --border: #2a2a4a;
+    --radius: 12px;
+    --shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; direction: rtl; }
+
+  /* Login Screen */
+  #loginScreen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: linear-gradient(135deg, #0f0f1a, #1a1a2e, #0f3460); }
+  .login-card { background: var(--surface); border-radius: 20px; padding: 40px 30px; width: 100%; max-width: 400px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+  .login-logo { text-align: center; margin-bottom: 30px; }
+  .login-logo h1 { color: var(--accent); font-size: 22px; margin-top: 10px; }
+  .login-logo p { color: var(--text2); font-size: 13px; margin-top: 5px; }
+  .logo-icon { width: 70px; height: 70px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 30px; }
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; margin-bottom: 8px; color: var(--text2); font-size: 13px; font-weight: 600; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 15px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-size: 14px; direction: ltr; text-align: left; outline: none; transition: border 0.2s; font-family: inherit; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+  .form-group small { color: var(--text2); font-size: 11px; margin-top: 5px; display: block; }
+  .btn { padding: 12px 20px; border: none; border-radius: var(--radius); cursor: pointer; font-size: 14px; font-weight: 700; transition: all 0.2s; width: 100%; font-family: inherit; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), #c0392b); color: white; }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-success { background: var(--success); color: white; }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-warning { background: var(--warning); color: white; }
+  .btn-info { background: var(--info); color: white; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-sm { padding: 7px 14px; font-size: 12px; width: auto; border-radius: 8px; }
+
+  /* App Layout */
+  #app { display: none; flex-direction: column; min-height: 100vh; }
+  .top-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+  .top-bar h2 { font-size: 16px; color: var(--text); }
+  .top-bar-actions { display: flex; gap: 10px; align-items: center; }
+  .badge { background: var(--accent); color: white; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+
+  /* Navigation */
+  .nav-bar { background: var(--surface); border-top: 1px solid var(--border); padding: 8px 0; display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.3); }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 6px 2px; cursor: pointer; transition: color 0.2s; color: var(--text2); gap: 3px; border: none; background: none; font-family: inherit; }
+  .nav-item.active { color: var(--accent); }
+  .nav-item span:first-child { font-size: 20px; }
+  .nav-item span:last-child { font-size: 10px; font-weight: 600; }
+  .content { flex: 1; padding: 16px; padding-bottom: 80px; overflow-y: auto; }
+
+  /* Cards */
+  .card { background: var(--surface); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+  .card-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .stat-card { background: var(--surface2); border-radius: var(--radius); padding: 16px; text-align: center; border: 1px solid var(--border); }
+  .stat-card .stat-value { font-size: 28px; font-weight: 700; color: var(--accent); }
+  .stat-card .stat-label { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+  /* News List */
+  .news-item { background: var(--surface2); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; border: 1px solid var(--border); position: relative; }
+  .news-item-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; line-height: 1.4; }
+  .news-item-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+  .news-item-actions { display: flex; gap: 8px; }
+  .tag { background: var(--accent2); color: var(--text); padding: 3px 8px; border-radius: 6px; font-size: 11px; }
+  .tag.urgent { background: var(--accent); }
+  .tag.category { background: #1e3a5f; }
+  .date-text { color: var(--text2); font-size: 11px; }
+
+  /* Modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: flex-end; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border-radius: 20px 20px 0 0; padding: 20px; width: 100%; max-height: 90vh; overflow-y: auto; border-top: 2px solid var(--accent); }
+  .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 20px; color: var(--accent); }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .modal-actions .btn { flex: 1; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
+  .tab { padding: 8px 16px; border-radius: 20px; background: var(--surface2); color: var(--text2); cursor: pointer; font-size: 13px; white-space: nowrap; border: 1px solid var(--border); font-weight: 600; font-family: inherit; }
+  .tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* Search */
+  .search-bar { display: flex; gap: 8px; margin-bottom: 14px; }
+  .search-input { flex: 1; padding: 10px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-size: 14px; direction: rtl; outline: none; font-family: inherit; }
+  .search-input:focus { border-color: var(--accent); }
+
+  /* Alert */
+  .alert { padding: 12px 16px; border-radius: var(--radius); margin-bottom: 12px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+  .alert-success { background: rgba(46,204,113,0.15); border: 1px solid var(--success); color: var(--success); }
+  .alert-error { background: rgba(231,76,60,0.15); border: 1px solid var(--danger); color: var(--danger); }
+  .alert-warning { background: rgba(243,156,18,0.15); border: 1px solid var(--warning); color: var(--warning); }
+  .alert-info { background: rgba(52,152,219,0.15); border: 1px solid var(--info); color: var(--info); }
+
+  /* Loading */
+  .loading { text-align: center; padding: 40px; color: var(--text2); }
+  .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 15px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Toggle */
+  .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-label { font-size: 14px; }
+  .toggle { position: relative; width: 48px; height: 26px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border-radius: 26px; border: 1px solid var(--border); transition: 0.3s; }
+  .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; bottom: 3px; background: var(--text2); border-radius: 50%; transition: 0.3s; }
+  input:checked + .toggle-slider { background: var(--success); border-color: var(--success); }
+  input:checked + .toggle-slider:before { transform: translateX(22px); background: white; }
+
+  /* Section header */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .section-title { font-size: 16px; font-weight: 700; }
+  .empty-state { text-align: center; padding: 50px 20px; color: var(--text2); }
+  .empty-state .empty-icon { font-size: 50px; margin-bottom: 15px; }
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: var(--surface2); border-radius: 20px; font-size: 12px; border: 1px solid var(--border); }
+  .color-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .fab { position: fixed; bottom: 80px; left: 16px; width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #c0392b); color: white; border: none; font-size: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(233,69,96,0.5); display: flex; align-items: center; justify-content: center; z-index: 50; }
+  .row { display: flex; gap: 10px; }
+  .row .form-group { flex: 1; }
+  .full-w { width: 100%; }
+  .text-center { text-align: center; }
+  .mt-10 { margin-top: 10px; }
+  .mb-10 { margin-bottom: 10px; }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .img-preview { width: 100%; max-height: 150px; object-fit: cover; border-radius: 8px; margin-top: 8px; display: none; }
+  .category-color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 8px; }
+  .color-option { width: 100%; aspect-ratio: 1; border-radius: 8px; cursor: pointer; border: 3px solid transparent; transition: 0.2s; }
+  .color-option.selected { border-color: white; transform: scale(1.1); }
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">🌐</div>
+      <h1>لوحة تحكم بوابة الأنباء</h1>
+      <p>تحكم كامل في موقعك الإخباري</p>
+    </div>
+    <div id="loginAlert"></div>
+    <div class="form-group">
+      <label>GitHub Token 🔑</label>
+      <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+      <small>من GitHub → Settings → Developer settings → Personal access tokens (يحتاج صلاحية repo)</small>
+    </div>
+    <div class="form-group">
+      <label>اسم المستخدم (GitHub Username)</label>
+      <input type="text" id="ghOwner" placeholder="your-username">
+    </div>
+    <div class="form-group">
+      <label>اسم المستودع (Repository Name)</label>
+      <input type="text" id="ghRepo" placeholder="world-news-portal">
+    </div>
+    <div class="form-group">
+      <label>الفرع (Branch)</label>
+      <input type="text" id="ghBranch" placeholder="main" value="main">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">🚀 دخول للوحة التحكم</button>
+    <div style="margin-top:12px; text-align:center;">
+      <small style="color:var(--text2)">بياناتك محفوظة محلياً على الجهاز فقط</small>
+    </div>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="app">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div>
+      <div style="font-size:13px; color:var(--text2);" id="repoName">بوابة الأنباء العالمية</div>
+      <div id="topBarTitle" style="font-size:16px; font-weight:700;">الرئيسية</div>
+    </div>
+    <div class="top-bar-actions">
+      <button class="btn btn-sm btn-secondary" onclick="refreshAll()" id="refreshBtn">🔄</button>
+      <button class="btn btn-sm btn-danger" onclick="doLogout()">خروج</button>
+    </div>
+  </div>
+
+  <!-- Global Alert -->
+  <div id="globalAlert" style="padding: 0 16px; padding-top: 8px; display:none;"></div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Dashboard Page -->
+    <div id="page-dashboard" class="page active">
+      <div class="stat-grid" id="statsGrid">
+        <div class="stat-card"><div class="stat-value" id="totalNews">-</div><div class="stat-label">📰 إجمالي الأخبار</div></div>
+        <div class="stat-card"><div class="stat-value" id="urgentNews">-</div><div class="stat-label">🚨 عاجل</div></div>
+        <div class="stat-card"><div class="stat-value" id="todayNews">-</div><div class="stat-label">📅 أخبار اليوم</div></div>
+        <div class="stat-card"><div class="stat-value" id="categoriesCount">-</div><div class="stat-label">📂 التصنيفات</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">⚡ إجراءات سريعة</div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button class="btn btn-primary" onclick="navigateTo('news'); openAddNews()">✏️ إضافة خبر جديد</button>
+          <button class="btn btn-info" onclick="navigateTo('bot')">🤖 تشغيل بوت الأخبار</button>
+          <button class="btn btn-warning" onclick="navigateTo('site')">⚙️ إعدادات الموقع</button>
+          <button class="btn btn-secondary" onclick="navigateTo('triggers')">🔧 إدارة GitHub Actions</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📰 آخر الأخبار المضافة</div>
+        <div id="recentNewsList"><div class="loading"><div class="spinner"></div>جاري التحميل...</div></div>
+      </div>
+    </div>
+
+    <!-- News Management Page -->
+    <div id="page-news" class="page">
+      <div class="search-bar">
+        <input class="search-input" type="text" id="newsSearch" placeholder="🔍 ابحث في الأخبار..." oninput="filterNews()">
+        <button class="btn btn-sm btn-secondary" onclick="filterNews()">بحث</button>
+      </div>
+      <div class="tabs" id="categoryTabs">
+        <button class="tab active" onclick="setNewsFilter('all', this)">الكل</button>
+        <button class="tab" onclick="setNewsFilter('عاجل', this)">🚨 عاجل</button>
+      </div>
+      <div class="section-header">
+        <span class="section-title" id="newsCountLabel">الأخبار</span>
+        <button class="btn btn-sm btn-primary" onclick="openAddNews()">+ إضافة</button>
+      </div>
+      <div id="newsList"><div class="loading"><div class="spinner"></div>جاري التحميل...</div></div>
+    </div>
+
+    <!-- Categories Page -->
+    <div id="page-categories" class="page">
+      <div class="section-header">
+        <span class="section-title">📂 التصنيفات</span>
+        <button class="btn btn-sm btn-primary" onclick="openAddCategory()">+ إضافة</button>
+      </div>
+      <div id="categoriesList"><div class="loading"><div class="spinner"></div>جاري التحميل...</div></div>
+    </div>
+
+    <!-- Bot / GitHub Actions Page -->
+    <div id="page-bot" class="page">
+      <div class="card">
+        <div class="card-title">🤖 تشغيل بوت الأخبار يدوياً</div>
+        <p style="color:var(--text2); font-size:13px; margin-bottom:14px;">سيقوم البوت بجلب الأخبار من المصادر المختلفة وإضافتها تلقائياً</p>
+        <button class="btn btn-primary" onclick="triggerWorkflow('news_bot.yml')">▶️ تشغيل البوت الآن</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📦 بناء APK جديد</div>
+        <p style="color:var(--text2); font-size:13px; margin-bottom:14px;">سيتم بناء نسخة جديدة من تطبيق الأندرويد</p>
+        <button class="btn btn-info" onclick="triggerWorkflow('build-apk.yml')">🔨 بناء APK</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 سجل تشغيل GitHub Actions</div>
+        <div id="workflowRunsList"><div class="loading"><div class="spinner"></div>جاري التحميل...</div></div>
+      </div>
+    </div>
+
+    <!-- GitHub Actions Manager Page -->
+    <div id="page-triggers" class="page">
+      <div class="card">
+        <div class="card-title">🔧 إدارة Workflows</div>
+        <div id="workflowsList"><div class="loading"><div class="spinner"></div>جاري التحميل...</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📁 إدارة ملفات الموقع</div>
+        <p style="color:var(--text2); font-size:13px; margin-bottom:14px;">عرض وتعديل الملفات مباشرة في المستودع</p>
+        <div id="filesList"><div class="loading"><div class="spinner"></div>جاري التحميل...</div></div>
+      </div>
+    </div>
+
+    <!-- Site Settings Page -->
+    <div id="page-site" class="page">
+      <div class="card">
+        <div class="card-title">⚙️ إعدادات الموقع العامة</div>
+        <div id="siteSettingsForm">
+          <div class="loading"><div class="spinner"></div>جاري التحميل...</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📰 إعدادات مصادر RSS</div>
+        <div id="rssSourcesList"><div class="loading"><div class="spinner"></div>جاري التحميل...</div></div>
+        <button class="btn btn-primary mt-10" onclick="openAddRss()">+ إضافة مصدر RSS</button>
+      </div>
+      <div class="card">
+        <div class="card-title">🗑️ إدارة الأخبار القديمة</div>
+        <div class="form-group">
+          <label>احذف الأخبار الأقدم من (أيام)</label>
+          <input type="number" id="deleteOlderThan" placeholder="30" min="1">
+        </div>
+        <button class="btn btn-danger" onclick="deleteOldNews()">🗑️ حذف الأخبار القديمة</button>
+        <div class="divider"></div>
+        <button class="btn btn-danger" onclick="confirmDeleteAllNews()">⚠️ حذف جميع الأخبار</button>
+      </div>
+      <div class="card">
+        <div class="card-title">🔐 تغيير بيانات الدخول</div>
+        <button class="btn btn-secondary" onclick="openChangeCredentials()">تغيير الإعدادات</button>
+      </div>
+    </div>
+
+  </div><!-- end content -->
+
+  <!-- Bottom Nav -->
+  <nav class="nav-bar">
+    <button class="nav-item active" onclick="navigateTo('dashboard')" id="nav-dashboard">
+      <span>🏠</span><span>الرئيسية</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('news')" id="nav-news">
+      <span>📰</span><span>الأخبار</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('categories')" id="nav-categories">
+      <span>📂</span><span>التصنيفات</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('bot')" id="nav-bot">
+      <span>🤖</span><span>البوت</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('site')" id="nav-site">
+      <span>⚙️</span><span>الإعدادات</span>
+    </button>
+  </nav>
+</div>
+
+<!-- Add/Edit News Modal -->
+<div class="modal-overlay" id="newsModal">
+  <div class="modal">
+    <div class="modal-title" id="newsModalTitle">✏️ إضافة خبر جديد</div>
+    <div id="newsModalAlert"></div>
+    <div class="form-group">
+      <label>العنوان الرئيسي *</label>
+      <input type="text" id="newsTitle" placeholder="عنوان الخبر">
+    </div>
+    <div class="form-group">
+      <label>الملخص *</label>
+      <textarea id="newsSummary" rows="3" placeholder="ملخص مختصر للخبر"></textarea>
+    </div>
+    <div class="form-group">
+      <label>المحتوى الكامل</label>
+      <textarea id="newsContent" rows="5" placeholder="المحتوى التفصيلي للخبر"></textarea>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>التصنيف *</label>
+        <select id="newsCategory">
+          <option value="">-- اختر --</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>المصدر</label>
+        <input type="text" id="newsSource" placeholder="Al Jazeera">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>رابط المصدر</label>
+      <input type="url" id="newsUrl" placeholder="https://...">
+    </div>
+    <div class="form-group">
+      <label>رابط الصورة</label>
+      <input type="url" id="newsImage" placeholder="https://..." oninput="previewImg()">
+      <img id="imgPreview" class="img-preview">
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>الكاتب</label>
+        <input type="text" id="newsAuthor" placeholder="اسم الكاتب">
+      </div>
+      <div class="form-group">
+        <label>التاريخ</label>
+        <input type="datetime-local" id="newsDate">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>الكلمات المفتاحية (مفصولة بفاصلة)</label>
+      <input type="text" id="newsTags" placeholder="سياسة, أخبار, عالمية">
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-label">🚨 خبر عاجل</span>
+      <label class="toggle"><input type="checkbox" id="newsUrgent"><span class="toggle-slider"></span></label>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-label">📌 تثبيت الخبر</span>
+      <label class="toggle"><input type="checkbox" id="newsPinned"><span class="toggle-slider"></span></label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('newsModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveNews()" id="saveNewsBtn">💾 حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Category Modal -->
+<div class="modal-overlay" id="categoryModal">
+  <div class="modal">
+    <div class="modal-title" id="catModalTitle">📂 إضافة تصنيف جديد</div>
+    <div id="catModalAlert"></div>
+    <div class="form-group">
+      <label>اسم التصنيف *</label>
+      <input type="text" id="catName" placeholder="مثال: رياضة">
+    </div>
+    <div class="form-group">
+      <label>الإيموجي / الأيقونة</label>
+      <input type="text" id="catIcon" placeholder="⚽">
+    </div>
+    <div class="form-group">
+      <label>اللون</label>
+      <div class="category-color-grid" id="colorGrid"></div>
+      <input type="text" id="catColor" placeholder="#3498db" style="margin-top:10px;">
+    </div>
+    <div class="form-group">
+      <label>الترتيب (رقم)</label>
+      <input type="number" id="catOrder" placeholder="1" min="0">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('categoryModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveCategory()">💾 حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add RSS Modal -->
+<div class="modal-overlay" id="rssModal">
+  <div class="modal">
+    <div class="modal-title">📡 إضافة مصدر RSS</div>
+    <div id="rssModalAlert"></div>
+    <div class="form-group">
+      <label>اسم المصدر *</label>
+      <input type="text" id="rssName" placeholder="مثال: الجزيرة">
+    </div>
+    <div class="form-group">
+      <label>رابط RSS *</label>
+      <input type="url" id="rssUrl" placeholder="https://www.aljazeera.net/rss">
+    </div>
+    <div class="form-group">
+      <label>التصنيف الافتراضي</label>
+      <select id="rssCategory">
+        <option value="">-- بدون تصنيف --</option>
+      </select>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-label">تفعيل هذا المصدر</span>
+      <label class="toggle"><input type="checkbox" id="rssActive" checked><span class="toggle-slider"></span></label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('rssModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveRss()">💾 حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- File Viewer Modal -->
+<div class="modal-overlay" id="fileModal">
+  <div class="modal">
+    <div class="modal-title" id="fileModalTitle">📄 تعديل الملف</div>
+    <div id="fileModalAlert"></div>
+    <div class="form-group">
+      <label>المحتوى</label>
+      <textarea id="fileContent" rows="15" style="direction:ltr; font-family:monospace; font-size:12px;"></textarea>
+    </div>
+    <div class="form-group">
+      <label>رسالة الحفظ (Commit Message)</label>
+      <input type="text" id="fileCommitMsg" placeholder="تعديل الملف">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('fileModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveFile()">💾 حفظ التغييرات</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-title" id="confirmTitle">⚠️ تأكيد الحذف</div>
+    <p id="confirmMessage" style="color:var(--text2); margin-bottom:20px;"></p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('confirmModal')">إلغاء</button>
+      <button class="btn btn-danger" id="confirmBtn">حذف</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG & STATE
+// ============================================================
+let cfg = {};
+let allNews = [];
+let categories = [];
+let currentNewsFilter = 'all';
+let editingNewsIndex = -1;
+let editingCatIndex = -1;
+let currentFilePath = '';
+let currentFileSha = '';
+let rssSources = [];
+
+const COLORS = ['#e94560','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#e74c3c','#0f3460','#16213e'];
+
+// ============================================================
+// INIT
+// ============================================================
+window.onload = () => {
+  const saved = localStorage.getItem('wn_cfg');
+  if (saved) {
+    cfg = JSON.parse(saved);
+    startApp();
+  }
+  buildColorGrid();
+};
+
+function buildColorGrid() {
+  const grid = document.getElementById('colorGrid');
+  COLORS.forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'color-option';
+    d.style.background = c;
+    d.onclick = () => {
+      document.querySelectorAll('.color-option').forEach(x => x.classList.remove('selected'));
+      d.classList.add('selected');
+      document.getElementById('catColor').value = c;
+    };
+    grid.appendChild(d);
+  });
+}
+
+// ============================================================
+// AUTH
+// ============================================================
+async function doLogin() {
+  const token = document.getElementById('ghToken').value.trim();
+  const owner = document.getElementById('ghOwner').value.trim();
+  const repo = document.getElementById('ghRepo').value.trim();
+  const branch = document.getElementById('ghBranch').value.trim() || 'main';
+  if (!token || !owner || !repo) { showLoginAlert('يرجى ملء جميع الحقول المطلوبة', 'error'); return; }
+  showLoginAlert('جاري التحقق...', 'info');
+  try {
+    const res = await ghFetch(`https://api.github.com/repos/${owner}/${repo}`, token);
+    if (!res.ok) { showLoginAlert('فشل التحقق: تأكد من صحة البيانات والصلاحيات', 'error'); return; }
+    cfg = { token, owner, repo, branch };
+    localStorage.setItem('wn_cfg', JSON.stringify(cfg));
+    startApp();
+  } catch(e) { showLoginAlert('خطأ في الاتصال: ' + e.message, 'error'); }
+}
+
+function showLoginAlert(msg, type) {
+  document.getElementById('loginAlert').innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+}
+
+function doLogout() {
+  localStorage.removeItem('wn_cfg');
+  cfg = {}; allNews = []; categories = [];
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+function openChangeCredentials() {
+  document.getElementById('ghToken').value = cfg.token || '';
+  document.getElementById('ghOwner').value = cfg.owner || '';
+  document.getElementById('ghRepo').value = cfg.repo || '';
+  document.getElementById('ghBranch').value = cfg.branch || 'main';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+// ============================================================
+// APP START
+// ============================================================
+function startApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('repoName').textContent = `${cfg.owner}/${cfg.repo}`;
+  refreshAll();
+}
+
+async function refreshAll() {
+  document.getElementById('refreshBtn').textContent = '⏳';
+  await loadNews();
+  await loadWorkflowRuns();
+  await loadWorkflows();
+  await loadRepoFiles();
+  await loadRssSources();
+  renderDashboard();
+  renderNews();
+  renderCategories();
+  document.getElementById('refreshBtn').textContent = '🔄';
+}
+
+// ============================================================
+// GITHUB API HELPERS
+// ============================================================
+function ghFetch(url, token, options = {}) {
+  return fetch(url, {
+    ...options,
+    headers: {
+      'Authorization': `token ${token || cfg.token}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    }
+  });
+}
+
+async function getFile(path) {
+  const res = await ghFetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${path}?ref=${cfg.branch}`);
+  if (!res.ok) return null;
+  const data = await res.json();
+  const content = atob(data.content.replace(/\n/g,''));
+  return { content, sha: data.sha };
+}
+
+async function putFile(path, content, sha, message) {
+  const body = {
+    message: message || `تحديث ${path}`,
+    content: btoa(unescape(encodeURIComponent(content))),
+    branch: cfg.branch
+  };
+  if (sha) body.sha = sha;
+  const res = await ghFetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${path}`, cfg.token, {
+    method: 'PUT',
+    body: JSON.stringify(body)
+  });
+  return res;
+}
+
+// ============================================================
+// NEWS MANAGEMENT
+// ============================================================
+async function loadNews() {
+  try {
+    const f = await getFile('news.json');
+    if (!f) { allNews = []; categories = extractCategories([]); return; }
+    const parsed = JSON.parse(f.content);
+    allNews = Array.isArray(parsed) ? parsed : (parsed.articles || parsed.news || []);
+    allNews = allNews.map((n, i) => ({ ...n, _idx: i }));
+    categories = extractCategories(allNews);
+    return f.sha;
+  } catch(e) { allNews = []; showGlobalAlert('خطأ في تحميل الأخبار: ' + e.message, 'error'); }
+}
+
+function extractCategories(news) {
+  const cats = new Set();
+  news.forEach(n => { if (n.category) cats.add(n.category); });
+  return Array.from(cats);
+}
+
+async function saveNewsJson(message) {
+  const f = await getFile('news.json');
+  const clean = allNews.map(n => { const x = {...n}; delete x._idx; return x; });
+  const content = JSON.stringify(clean, null, 2);
+  const res = await putFile('news.json', content, f ? f.sha : null, message);
+  if (res.ok) { showGlobalAlert('✅ تم حفظ التغييرات بنجاح', 'success'); await loadNews(); renderDashboard(); renderNews(); }
+  else { const err = await res.json(); showGlobalAlert('❌ فشل الحفظ: ' + (err.message || 'خطأ غير معروف'), 'error'); }
+  return res.ok;
+}
+
+function renderDashboard() {
+  document.getElementById('totalNews').textContent = allNews.length;
+  document.getElementById('urgentNews').textContent = allNews.filter(n => n.urgent || n.breaking).length;
+  const today = new Date().toISOString().slice(0, 10);
+  document.getElementById('todayNews').textContent = allNews.filter(n => (n.date || n.pubDate || n.published_at || '').startsWith(today)).length;
+  document.getElementById('categoriesCount').textContent = categories.length;
+  const recent = allNews.slice(-5).reverse();
+  const container = document.getElementById('recentNewsList');
+  if (!recent.length) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>لا توجد أخبار بعد</p></div>'; return; }
+  container.innerHTML = recent.map(n => `
+    <div class="news-item" style="margin-bottom:8px;">
+      <div class="news-item-title">${n.title || n.headline || 'بدون عنوان'}</div>
+      <div class="news-item-meta">
+        ${n.category ? `<span class="tag category">${n.category}</span>` : ''}
+        ${n.urgent||n.breaking ? `<span class="tag urgent">عاجل</span>` : ''}
+        <span class="date-text">${formatDate(n.date||n.pubDate||n.published_at)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderNews() {
+  const search = document.getElementById('newsSearch').value.toLowerCase();
+  let filtered = allNews.filter(n => {
+    const title = (n.title || n.headline || '').toLowerCase();
+    const summary = (n.summary || n.description || '').toLowerCase();
+    const matchSearch = !search || title.includes(search) || summary.includes(search);
+    const matchFilter = currentNewsFilter === 'all' || n.category === currentNewsFilter || (currentNewsFilter === 'عاجل' && (n.urgent || n.breaking));
+    return matchSearch && matchFilter;
+  });
+
+  // Update category tabs
+  const tabsEl = document.getElementById('categoryTabs');
+  const uniqueCats = extractCategories(allNews);
+  tabsEl.innerHTML = `
+    <button class="tab ${currentNewsFilter==='all'?'active':''}" onclick="setNewsFilter('all',this)">الكل</button>
+    <button class="tab ${currentNewsFilter==='عاجل'?'active':''}" onclick="setNewsFilter('عاجل',this)">🚨 عاجل</button>
+    ${uniqueCats.map(c => `<button class="tab ${currentNewsFilter===c?'active':''}" onclick="setNewsFilter('${c}',this)">${c}</button>`).join('')}
+  `;
+
+  document.getElementById('newsCountLabel').textContent = `الأخبار (${filtered.length})`;
+  const container = document.getElementById('newsList');
+  if (!filtered.length) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>لا توجد أخبار تطابق البحث</p></div>'; return; }
+  container.innerHTML = filtered.slice().reverse().map(n => `
+    <div class="news-item">
+      ${n.image ? `<img src="${n.image}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px;" onerror="this.style.display='none'">` : ''}
+      <div class="news-item-title">${n.title || n.headline || 'بدون عنوان'}</div>
+      <div class="news-item-meta">
+        ${n.category ? `<span class="tag category">${n.category}</span>` : ''}
+        ${n.urgent||n.breaking ? `<span class="tag urgent">🚨 عاجل</span>` : ''}
+        ${n.pinned ? `<span class="tag" style="background:#6c3483">📌 مثبت</span>` : ''}
+        <span class="date-text">${formatDate(n.date||n.pubDate||n.published_at)}</span>
+      </div>
+      <div class="news-item-actions">
+        <button class="btn btn-sm btn-info" onclick="openEditNews(${n._idx})">✏️ تعديل</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteNewsItem(${n._idx})">🗑️ حذف</button>
+      </div>
+    </div>
+  `).join('');
+
+  // Populate category selects
+  const catOpts = uniqueCats.map(c => `<option value="${c}">${c}</option>`).join('');
+  document.getElementById('newsCategory').innerHTML = '<option value="">-- اختر --</option>' + catOpts;
+  document.getElementById('rssCategory').innerHTML = '<option value="">-- بدون --</option>' + catOpts;
+}
+
+function setNewsFilter(val, el) {
+  currentNewsFilter = val;
+  document.querySelectorAll('#categoryTabs .tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderNews();
+}
+
+function filterNews() { renderNews(); }
+
+function openAddNews() {
+  editingNewsIndex = -1;
+  document.getElementById('newsModalTitle').textContent = '✏️ إضافة خبر جديد';
+  clearNewsForm();
+  document.getElementById('newsDate').value = new Date().toISOString().slice(0,16);
+  populateCategorySelect();
+  openModal('newsModal');
+}
+
+function openEditNews(idx) {
+  editingNewsIndex = idx;
+  const n = allNews[idx];
+  document.getElementById('newsModalTitle').textContent = '✏️ تعديل الخبر';
+  document.getElementById('newsTitle').value = n.title || n.headline || '';
+  document.getElementById('newsSummary').value = n.summary || n.description || '';
+  document.getElementById('newsContent').value = n.content || n.body || '';
+  document.getElementById('newsCategory').value = n.category || '';
+  document.getElementById('newsSource').value = n.source || '';
+  document.getElementById('newsUrl').value = n.url || n.link || '';
+  document.getElementById('newsImage').value = n.image || n.thumbnail || '';
+  document.getElementById('newsAuthor').value = n.author || '';
+  document.getElementById('newsDate').value = (n.date || n.pubDate || new Date().toISOString()).slice(0,16);
+  document.getElementById('newsTags').value = Array.isArray(n.tags) ? n.tags.join(', ') : (n.tags || '');
+  document.getElementById('newsUrgent').checked = !!(n.urgent || n.breaking);
+  document.getElementById('newsPinned').checked = !!n.pinned;
+  previewImg();
+  populateCategorySelect();
+  openModal('newsModal');
+}
+
+function populateCategorySelect() {
+  const cats = extractCategories(allNews);
+  const sel = document.getElementById('newsCategory');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">-- اختر --</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+
+function clearNewsForm() {
+  ['newsTitle','newsSummary','newsContent','newsSource','newsUrl','newsImage','newsAuthor','newsTags'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('newsCategory').value = '';
+  document.getElementById('newsUrgent').checked = false;
+  document.getElementById('newsPinned').checked = false;
+  document.getElementById('imgPreview').style.display = 'none';
+  document.getElementById('newsModalAlert').innerHTML = '';
+}
+
+function previewImg() {
+  const url = document.getElementById('newsImage').value;
+  const img = document.getElementById('imgPreview');
+  if (url) { img.src = url; img.style.display = 'block'; }
+  else { img.style.display = 'none'; }
+}
+
+async function saveNews() {
+  const title = document.getElementById('newsTitle').value.trim();
+  const summary = document.getElementById('newsSummary').value.trim();
+  if (!title) { document.getElementById('newsModalAlert').innerHTML = '<div class="alert alert-error">العنوان مطلوب</div>'; return; }
+
+  const btn = document.getElementById('saveNewsBtn');
+  btn.textContent = '⏳ جاري الحفظ...'; btn.disabled = true;
+
+  const newsObj = {
+    title,
+    summary,
+    content: document.getElementById('newsContent').value.trim(),
+    category: document.getElementById('newsCategory').value,
+    source: document.getElementById('newsSource').value.trim(),
+    url: document.getElementById('newsUrl').value.trim(),
+    image: document.getElementById('newsImage').value.trim(),
+    author: document.getElementById('newsAuthor').value.trim(),
+    date: document.getElementById('newsDate').value || new Date().toISOString(),
+    tags: document.getElementById('newsTags').value.split(',').map(t=>t.trim()).filter(Boolean),
+    urgent: document.getElementById('newsUrgent').checked,
+    breaking: document.getElementById('newsUrgent').checked,
+    pinned: document.getElementById('newsPinned').checked,
+    id: editingNewsIndex >= 0 ? (allNews[editingNewsIndex].id || Date.now()) : Date.now(),
+    updatedAt: new Date().toISOString()
+  };
+
+  if (editingNewsIndex >= 0) {
+    allNews[editingNewsIndex] = { ...allNews[editingNewsIndex], ...newsObj };
+  } else {
+    allNews.push(newsObj);
+  }
+
+  const ok = await saveNewsJson(editingNewsIndex >= 0 ? `تعديل خبر: ${title}` : `إضافة خبر: ${title}`);
+  btn.textContent = '💾 حفظ'; btn.disabled = false;
+  if (ok) { closeModal('newsModal'); renderDashboard(); }
+  else { document.getElementById('newsModalAlert').innerHTML = '<div class="alert alert-error">فشل الحفظ، حاول مجدداً</div>'; }
+}
+
+function deleteNewsItem(idx) {
+  openConfirm('حذف الخبر', `هل تريد حذف الخبر: "${allNews[idx].title || 'هذا الخبر'}"؟`, async () => {
+    allNews.splice(idx, 1);
+    allNews = allNews.map((n, i) => ({...n, _idx: i}));
+    await saveNewsJson('حذف خبر');
+    renderDashboard(); renderNews();
+  });
+}
+
+// ============================================================
+// CATEGORIES
+// ============================================================
+function renderCategories() {
+  const cats = extractCategories(allNews);
+  const container = document.getElementById('categoriesList');
+  if (!cats.length) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">📂</div><p>لا توجد تصنيفات بعد</p></div>'; return; }
+  container.innerHTML = cats.map((c, i) => `
+    <div class="news-item">
+      <div class="flex-between">
+        <div>
+          <span style="font-size:16px; font-weight:700;">${c}</span>
+          <span class="tag" style="margin-right:8px;">${allNews.filter(n=>n.category===c).length} خبر</span>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-sm btn-info" onclick="openEditCategory('${c}')">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteCategoryItems('${c}')">🗑️</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openAddCategory() {
+  editingCatIndex = -1;
+  document.getElementById('catModalTitle').textContent = '📂 إضافة تصنيف جديد';
+  document.getElementById('catName').value = '';
+  document.getElementById('catIcon').value = '';
+  document.getElementById('catColor').value = '';
+  document.getElementById('catOrder').value = '';
+  document.getElementById('catModalAlert').innerHTML = '';
+  document.querySelectorAll('.color-option').forEach(x => x.classList.remove('selected'));
+  openModal('categoryModal');
+}
+
+function openEditCategory(name) {
+  editingCatIndex = name;
+  document.getElementById('catModalTitle').textContent = '✏️ تعديل التصنيف';
+  document.getElementById('catName').value = name;
+  document.getElementById('catModalAlert').innerHTML = '';
+  openModal('categoryModal');
+}
+
+async function saveCategory() {
+  const newName = document.getElementById('catName').value.trim();
+  if (!newName) { document.getElementById('catModalAlert').innerHTML = '<div class="alert alert-error">الاسم مطلوب</div>'; return; }
+
+  if (editingCatIndex && editingCatIndex !== -1) {
+    // Rename category in all news
+    allNews = allNews.map(n => n.category === editingCatIndex ? {...n, category: newName} : n);
+    await saveNewsJson(`تعديل التصنيف: ${editingCatIndex} → ${newName}`);
+  }
+  closeModal('categoryModal');
+  renderCategories();
+  renderNews();
+}
+
+function deleteCategoryItems(cat) {
+  const count = allNews.filter(n => n.category === cat).length;
+  openConfirm('حذف التصنيف', `هل تريد حذف تصنيف "${cat}" و${count} خبر مرتبط به؟`, async () => {
+    allNews = allNews.filter(n => n.category !== cat);
+    allNews = allNews.map((n, i) => ({...n, _idx: i}));
+    await saveNewsJson(`حذف تصنيف: ${cat}`);
+    renderCategories(); renderNews(); renderDashboard();
+  });
+}
+
+// ============================================================
+// SITE SETTINGS
+// ============================================================
+async function loadRssSources() {
+  try {
+    const f = await getFile('update_news.py');
+    if (!f) return;
+    rssSources = [];
+    const regex = /['"]https?:\/\/[^'"]+rss[^'"]*['"]/gi;
+    const matches = f.content.match(regex) || [];
+    matches.forEach(m => rssSources.push(m.replace(/['"]/g, '')));
+    renderRssSources();
+  } catch(e) {}
+}
+
+function renderRssSources() {
+  const container = document.getElementById('rssSourcesList');
+  if (!rssSources.length) { container.innerHTML = '<p style="color:var(--text2); font-size:13px;">لا توجد مصادر RSS محددة</p>'; return; }
+  container.innerHTML = rssSources.map((url, i) => `
+    <div class="news-item" style="margin-bottom:8px;">
+      <div style="font-size:12px; word-break:break-all; color:var(--info);">${url}</div>
+      <div style="margin-top:8px;">
+        <button class="btn btn-sm btn-danger" onclick="deleteRssSource(${i})">🗑️ حذف</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openAddRss() { openModal('rssModal'); }
+
+async function saveRss() {
+  const url = document.getElementById('rssUrl').value.trim();
+  if (!url) { document.getElementById('rssModalAlert').innerHTML = '<div class="alert alert-error">الرابط مطلوب</div>'; return; }
+  rssSources.push(url);
+  closeModal('rssModal');
+  renderRssSources();
+  showGlobalAlert('✅ تم إضافة المصدر. يمكنك تعديل ملف update_news.py لتطبيق التغييرات.', 'info');
+}
+
+async function deleteRssSource(i) {
+  rssSources.splice(i, 1);
+  renderRssSources();
+  showGlobalAlert('تم حذف المصدر من القائمة. عدّل ملف update_news.py لتطبيق التغييرات.', 'warning');
+}
+
+async function deleteOldNews() {
+  const days = parseInt(document.getElementById('deleteOlderThan').value) || 30;
+  const cutoff = new Date(Date.now() - days * 86400000).toISOString();
+  const before = allNews.length;
+  allNews = allNews.filter(n => {
+    const d = n.date || n.pubDate || n.published_at || '';
+    return !d || d >= cutoff;
+  });
+  allNews = allNews.map((n, i) => ({...n, _idx: i}));
+  const deleted = before - allNews.length;
+  if (!deleted) { showGlobalAlert('لا توجد أخبار أقدم من ' + days + ' يوم', 'info'); return; }
+  await saveNewsJson(`حذف ${deleted} خبر أقدم من ${days} يوم`);
+  renderDashboard(); renderNews();
+}
+
+function confirmDeleteAllNews() {
+  openConfirm('⚠️ حذف جميع الأخبار', 'هل أنت متأكد؟ سيتم حذف جميع الأخبار نهائياً ولا يمكن التراجع!', async () => {
+    allNews = [];
+    await saveNewsJson('حذف جميع الأخبار');
+    renderDashboard(); renderNews();
+  });
+}
+
+// ============================================================
+// GITHUB WORKFLOWS
+// ============================================================
+async function loadWorkflows() {
+  try {
+    const res = await ghFetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}/actions/workflows`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const container = document.getElementById('workflowsList');
+    if (!data.workflows || !data.workflows.length) { container.innerHTML = '<p style="color:var(--text2);">لا توجد workflows</p>'; return; }
+    container.innerHTML = data.workflows.map(w => `
+      <div class="news-item" style="margin-bottom:8px;">
+        <div class="flex-between">
+          <div>
+            <div style="font-weight:700; font-size:14px;">${w.name}</div>
+            <div style="color:var(--text2); font-size:11px;">${w.path}</div>
+            <span class="chip" style="margin-top:6px;"><span style="color:${w.state==='active'?'var(--success)':'var(--danger)'}">●</span> ${w.state==='active'?'نشط':'معطل'}</span>
+          </div>
+          <button class="btn btn-sm btn-primary" onclick="triggerWorkflow('${w.path.split('/').pop()}')">▶️ تشغيل</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {}
+}
+
+async function loadWorkflowRuns() {
+  try {
+    const res = await ghFetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}/actions/runs?per_page=10`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const container = document.getElementById('workflowRunsList');
+    if (!data.workflow_runs || !data.workflow_runs.length) { container.innerHTML = '<p style="color:var(--text2);">لا يوجد سجل تشغيل</p>'; return; }
+    const statusIcon = s => ({ completed:'✅', in_progress:'⏳', queued:'⏸️', failure:'❌', cancelled:'⛔' })[s] || '❓';
+    container.innerHTML = data.workflow_runs.map(r => `
+      <div style="padding:10px; background:var(--surface2); border-radius:10px; margin-bottom:8px; border:1px solid var(--border);">
+        <div class="flex-between">
+          <div style="font-weight:600; font-size:13px;">${statusIcon(r.conclusion||r.status)} ${r.name}</div>
+          <span style="font-size:11px; color:var(--text2);">${formatDate(r.created_at)}</span>
+        </div>
+        <div style="font-size:11px; color:var(--text2); margin-top:4px;">الفرع: ${r.head_branch} • ${r.conclusion||r.status}</div>
+      </div>
+    `).join('');
+  } catch(e) {}
+}
+
+async function triggerWorkflow(filename) {
+  showGlobalAlert('⏳ جاري تشغيل ' + filename + '...', 'info');
+  try {
+    const res = await ghFetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}/actions/workflows/${filename}/dispatches`, cfg.token, {
+      method: 'POST',
+      body: JSON.stringify({ ref: cfg.branch })
+    });
+    if (res.ok || res.status === 204) {
+      showGlobalAlert('✅ تم تشغيل ' + filename + ' بنجاح! تحقق من سجل التشغيل.', 'success');
+      setTimeout(() => loadWorkflowRuns(), 3000);
+    } else {
+      const err = await res.json();
+      showGlobalAlert('❌ فشل التشغيل: ' + (err.message || 'تأكد من صلاحية workflow_dispatch'), 'error');
+    }
+  } catch(e) { showGlobalAlert('❌ خطأ: ' + e.message, 'error'); }
+}
+
+// ============================================================
+// FILE MANAGER
+// ============================================================
+async function loadRepoFiles() {
+  try {
+    const res = await ghFetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/?ref=${cfg.branch}`);
+    if (!res.ok) return;
+    const files = await res.json();
+    const container = document.getElementById('filesList');
+    const editable = files.filter(f => f.type === 'file' && (f.name.endsWith('.html') || f.name.endsWith('.js') || f.name.endsWith('.json') || f.name.endsWith('.css') || f.name.endsWith('.py') || f.name.endsWith('.yml') || f.name.endsWith('.md') || f.name.endsWith('.txt')));
+    container.innerHTML = editable.map(f => `
+      <div style="padding:10px; background:var(--surface2); border-radius:10px; margin-bottom:8px; border:1px solid var(--border);">
+        <div class="flex-between">
+          <div>
+            <span style="font-size:14px; font-weight:600;">${fileIcon(f.name)} ${f.name}</span>
+            <div style="color:var(--text2); font-size:11px; margin-top:3px;">${formatBytes(f.size)}</div>
+          </div>
+          <button class="btn btn-sm btn-info" onclick="openFileEditor('${f.path}')">✏️ تعديل</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {}
+}
+
+function fileIcon(name) {
+  if (name.endsWith('.html')) return '🌐';
+  if (name.endsWith('.js')) return '⚡';
+  if (name.endsWith('.json')) return '📋';
+  if (name.endsWith('.css')) return '🎨';
+  if (name.endsWith('.py')) return '🐍';
+  if (name.endsWith('.yml') || name.endsWith('.yaml')) return '⚙️';
+  return '📄';
+}
+
+async function openFileEditor(path) {
+  document.getElementById('fileModalTitle').textContent = `📄 تعديل: ${path}`;
+  document.getElementById('fileContent').value = 'جاري التحميل...';
+  document.getElementById('fileCommitMsg').value = `تعديل ${path}`;
+  document.getElementById('fileModalAlert').innerHTML = '';
+  currentFilePath = path;
+  openModal('fileModal');
+  const f = await getFile(path);
+  if (f) { document.getElementById('fileContent').value = f.content; currentFileSha = f.sha; }
+  else { document.getElementById('fileContent').value = 'فشل تحميل الملف'; }
+}
+
+async function saveFile() {
+  const content = document.getElementById('fileContent').value;
+  const msg = document.getElementById('fileCommitMsg').value || `تعديل ${currentFilePath}`;
+  document.getElementById('fileModalAlert').innerHTML = '<div class="alert alert-info">⏳ جاري الحفظ...</div>';
+  const res = await putFile(currentFilePath, content, currentFileSha, msg);
+  if (res.ok) {
+    document.getElementById('fileModalAlert').innerHTML = '<div class="alert alert-success">✅ تم الحفظ بنجاح</div>';
+    const f = await getFile(currentFilePath);
+    if (f) currentFileSha = f.sha;
+  } else {
+    const err = await res.json();
+    document.getElementById('fileModalAlert').innerHTML = `<div class="alert alert-error">❌ فشل: ${err.message}</div>`;
+  }
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function navigateTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('nav-' + page).classList.add('active');
+  const titles = { dashboard:'الرئيسية', news:'إدارة الأخبار', categories:'التصنيفات', bot:'البوت والأتمتة', triggers:'إدارة الملفات', site:'الإعدادات' };
+  document.getElementById('topBarTitle').textContent = titles[page] || '';
+  if (page === 'news') { renderNews(); }
+  if (page === 'categories') { renderCategories(); }
+}
+
+// ============================================================
+// MODALS
+// ============================================================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+function openConfirm(title, msg, callback) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMessage').textContent = msg;
+  document.getElementById('confirmBtn').onclick = () => { closeModal('confirmModal'); callback(); };
+  openModal('confirmModal');
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function showGlobalAlert(msg, type) {
+  const el = document.getElementById('globalAlert');
+  el.style.display = 'block';
+  el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+  setTimeout(() => { el.style.display = 'none'; el.innerHTML = ''; }, 5000);
+}
+
+function formatDate(str) {
+  if (!str) return '';
+  try {
+    const d = new Date(str);
+    if (isNaN(d)) return str;
+    return d.toLocaleDateString('ar-SA', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+  } catch { return str; }
+}
+
+function formatBytes(b) {
+  if (!b) return '0 B';
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+</script>
+</body>
+</html>
