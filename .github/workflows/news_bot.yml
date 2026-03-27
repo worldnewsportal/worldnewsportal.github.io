@@ -2,8 +2,8 @@ name: Auto Update AI News
 
 on:
   schedule:
-    - cron: "0 */4 * * *" # يعمل كل 4 ساعات
-  workflow_dispatch: # يسمح لك بتشغيله يدوياً بضغطة زر
+    - cron: "0 */4 * * *"
+  workflow_dispatch:
 
 jobs:
   update-news:
@@ -18,7 +18,10 @@ jobs:
           python-version: '3.10'
 
       - name: Install Dependencies
-        run: pip install feedparser google-generativeai
+        # أضفنا المكتبات الجديدة هنا
+        run: |
+          pip install feedparser google-generativeai newspaper3k lxml nltk
+          python -c "import nltk; nltk.download('punkt')"
 
       - name: Run AI News Fetcher
         env:
@@ -30,5 +33,5 @@ jobs:
           git config --global user.name 'AI-News-Bot'
           git config --global user.email 'bot@yourdomain.com'
           git add news.json
-          git commit -m "Auto-update news via AI" || echo "No changes to commit"
+          git commit -m "Auto-update 50 detailed news via AI" || echo "No changes to commit"
           git push
