@@ -39,7 +39,7 @@ jobs:
       - name: Commit and Push
         run: |
           git config --global user.name "AI-News-Bot"
-          git config --global user.email "bot@news-portal.com"
+          git config --global user.email "bot@worldnewsportal.github.io"
           git add news.json
           if git diff --staged --quiet; then
             echo "No new articles this run."
@@ -48,3 +48,4 @@ jobs:
             git commit -m "bot: update news archive [${COUNT} articles] $(date +'%Y-%m-%d %H:%M UTC')"
             git push
           fi
+          
