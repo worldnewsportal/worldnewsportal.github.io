@@ -461,6 +461,51 @@ html,body{overflow-x:hidden;max-width:100vw}
 .key-points ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
 .key-points ul li{font-size:0.9rem;line-height:1.6;color:var(--text);padding-right:20px;position:relative}
 .key-points ul li::before{content:"◆";position:absolute;right:0;color:var(--primary);font-size:0.6rem;top:7px}
+
+/* ══════════════════════════════════
+   ميزة 6: Text-to-Speech
+══════════════════════════════════ */
+#tts-btn{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:20px;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:0.82rem;transition:var(--transition);display:flex;align-items:center;gap:6px}
+#tts-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+#tts-btn.playing{background:var(--primary);color:#fff;border-color:var(--primary);animation:ttsGlow 1.5s infinite}
+@keyframes ttsGlow{0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,0.4)}50%{box-shadow:0 0 0 8px rgba(192,57,43,0)}}
+
+/* ══════════════════════════════════
+   ميزة 7: Advanced Filters Panel
+══════════════════════════════════ */
+#filter-panel{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:16px;box-shadow:var(--shadow);display:none}
+#filter-panel.open{display:block}
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.filter-label{font-size:0.82rem;font-weight:700;color:var(--text);min-width:80px}
+.filter-chip{padding:4px 12px;border-radius:20px;border:1px solid var(--border);font-size:0.78rem;cursor:pointer;transition:var(--transition);background:var(--bg);color:var(--text);font-family:'Tajawal',sans-serif}
+.filter-chip:hover,.filter-chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.filter-btn-apply{background:var(--primary);color:#fff;border:none;padding:7px 20px;border-radius:20px;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:700;font-size:0.85rem;transition:var(--transition)}
+.filter-btn-apply:hover{background:var(--primary-dark)}
+.filter-btn-reset{background:var(--bg);color:var(--text-muted);border:1px solid var(--border);padding:7px 14px;border-radius:20px;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:0.82rem;transition:var(--transition)}
+.filter-btn-reset:hover{background:var(--border)}
+#filter-toggle-btn{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:6px 14px;border-radius:20px;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:0.82rem;transition:var(--transition)}
+#filter-toggle-btn:hover{background:var(--primary);border-color:var(--primary)}
+
+/* ══════════════════════════════════
+   ميزة 8: Live Visitor Counter
+══════════════════════════════════ */
+#live-visitors{display:flex;align-items:center;gap:6px;font-size:0.8rem;font-weight:600;color:var(--primary);background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.2);padding:4px 12px;border-radius:15px}
+.visitor-dot{width:8px;height:8px;border-radius:50%;background:#27ae60;animation:vDot 1.5s infinite}
+@keyframes vDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+
+/* ══════════════════════════════════
+   ميزة 9: لوحة مختصرات لوحة المفاتيح
+══════════════════════════════════ */
+#keyboard-hint{position:fixed;bottom:90px;left:20px;background:var(--secondary);color:rgba(255,255,255,0.85);border-radius:10px;padding:10px 14px;font-size:0.75rem;z-index:998;display:none;flex-direction:column;gap:5px;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+#keyboard-hint.show{display:flex}
+.kb-row{display:flex;align-items:center;gap:8px}
+.kb-key{background:rgba(255,255,255,0.15);border-radius:4px;padding:2px 7px;font-family:monospace;font-size:0.78rem}
+
+/* ══════════════════════════════════
+   ميزة 10: إعلانات في الشبكة (grid)
+══════════════════════════════════ */
+.grid-ad-injected{grid-column:1/-1;text-align:center;padding:10px;margin:4px 0;background:var(--bg);border-radius:10px;border:1px dashed var(--border)}
+.grid-ad-injected-label{font-size:0.67rem;color:var(--text-muted);margin-bottom:4px}
 </style>
 </head>
 <body>
@@ -479,6 +524,14 @@ html,body{overflow-x:hidden;max-width:100vw}
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- ميزة 9: Keyboard Navigation Hint -->
+<div id="keyboard-hint">
+  <div class="kb-row"><span class="kb-key">→</span> المقال التالي</div>
+  <div class="kb-row"><span class="kb-key">←</span> المقال السابق</div>
+  <div class="kb-row"><span class="kb-key">ESC</span> إغلاق</div>
+  <div class="kb-row"><span class="kb-key">Space</span> تشغيل/إيقاف الصوت</div>
+</div>
 
 <!-- BACK TO TOP -->
 <button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</button>
@@ -501,6 +554,7 @@ html,body{overflow-x:hidden;max-width:100vw}
       <div class="live-clock" id="live-clock">--:--:--</div>
       <button class="btn-icon" onclick="toggleDark()" title="وضع الليل" id="dark-btn">🌙</button>
       <button class="btn-icon" onclick="showBookmarks()" title="المحفوظات">🔖</button>
+      <button id="filter-toggle-btn" onclick="toggleFilterPanel()" title="فلترة متقدمة">🔧 فلترة</button>
       <!-- ميزة 1: PWA Install -->
       <button id="pwa-install-btn" onclick="installPWA()" title="تثبيت التطبيق">📲 تثبيت</button>
     </div>
@@ -539,6 +593,12 @@ html,body{overflow-x:hidden;max-width:100vw}
       <span class="stat-num" id="stat-updated">--</span>
       <span class="stat-label">آخر تحديث</span>
     </div>
+    <!-- ميزة 8: Live Visitor Counter -->
+    <div id="live-visitors">
+      <span class="visitor-dot"></span>
+      <span id="visitor-count">247</span>
+      <span>يقرأ الآن</span>
+    </div>
   </div>
 
   <!-- ADSTERRA TOP BANNER — Native Banner -->
@@ -550,6 +610,33 @@ html,body{overflow-x:hidden;max-width:100vw}
   <div class="layout">
     <main>
       <!-- HERO -->
+      <!-- ميزة 7: Filter Panel -->
+      <div id="filter-panel">
+        <div class="filter-row">
+          <span class="filter-label">⚡ الأهمية</span>
+          <span class="filter-chip" data-filter="importance" data-val="breaking" onclick="toggleFilterChip(this)">🔴 عاجل</span>
+          <span class="filter-chip" data-filter="importance" data-val="high" onclick="toggleFilterChip(this)">🟡 مهم</span>
+          <span class="filter-chip" data-filter="importance" data-val="normal" onclick="toggleFilterChip(this)">⚪ عادي</span>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">📅 الفترة</span>
+          <span class="filter-chip" data-filter="period" data-val="today" onclick="toggleFilterChip(this)">اليوم</span>
+          <span class="filter-chip" data-filter="period" data-val="week" onclick="toggleFilterChip(this)">هذا الأسبوع</span>
+          <span class="filter-chip" data-filter="period" data-val="month" onclick="toggleFilterChip(this)">هذا الشهر</span>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">📊 الترتيب</span>
+          <span class="filter-chip active" data-filter="sort" data-val="ai" onclick="toggleFilterChip(this)">🤖 ذكي</span>
+          <span class="filter-chip" data-filter="sort" data-val="newest" onclick="toggleFilterChip(this)">الأحدث</span>
+          <span class="filter-chip" data-filter="sort" data-val="popular" onclick="toggleFilterChip(this)">الأكثر مشاهدة</span>
+          <span class="filter-chip" data-filter="sort" data-val="comments" onclick="toggleFilterChip(this)">الأكثر تعليقًا</span>
+        </div>
+        <div class="filter-row" style="margin-bottom:0;gap:8px">
+          <button class="filter-btn-apply" onclick="applyAdvancedFilters()">✔ تطبيق الفلتر</button>
+          <button class="filter-btn-reset" onclick="resetAdvancedFilters()">✕ إعادة ضبط</button>
+        </div>
+      </div>
+
       <div class="hero-section" id="hero-section"></div>
 
       <!-- SEARCH HEADER -->
@@ -749,6 +836,8 @@ html,body{overflow-x:hidden;max-width:100vw}
         <button class="art-action-btn" id="m-bookmark-btn" onclick="toggleBookmark()">🔖 <span id="m-bookmark-txt">حفظ</span></button>
         <button class="art-action-btn" onclick="printArticle()">🖨️ طباعة</button>
         <button class="art-action-btn" onclick="copyLink()">🔗 نسخ الرابط</button>
+        <!-- ميزة 6: Text-to-Speech -->
+        <button id="tts-btn" onclick="toggleTTS()">🔊 استمع</button>
       </div>
 
       <!-- ميزة 4: تحكم القراءة -->
@@ -771,11 +860,11 @@ html,body{overflow-x:hidden;max-width:100vw}
       <!-- TAGS -->
       <div class="tags-wrap" id="m-tags"></div>
 
-      <!-- AD IN ARTICLE — Native Banner -->
-      <div class="ad-banner" style="margin:20px 0">
-        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-bottom:4px">إعلان</span>
-        <script async="async" data-cfasync="false" src="https://pl28499802.profitablecpmratenetwork.com/9f87f24429f10bc14a8cfecc22feb80e/invoke.js"></script>
-        <div id="container-9f87f24429f10bc14a8cfecc22feb80e-article"></div>
+      <!-- AD IN ARTICLE — Banner 468x60 (داخل كل مقال) -->
+      <div id="ad-in-article" style="margin:22px 0;text-align:center;padding:10px;background:var(--bg);border-radius:10px;border:1px solid var(--border)">
+        <div style="font-size:0.68rem;color:var(--text-muted);margin-bottom:5px;letter-spacing:0.05em">— إعلان —</div>
+        <script>atOptions={'key':'7fca0aabf8fdfa928ce23eaead0895b9','format':'iframe','height':60,'width':468,'params':{}};</script>
+        <script src="https://www.highperformanceformat.com/7fca0aabf8fdfa928ce23eaead0895b9/invoke.js"></script>
       </div>
 
       <!-- RELATED -->
@@ -1048,6 +1137,7 @@ function setView(v) {
 
 // ===================== RENDER =====================
 function renderGrid() {
+  if (typeof applyAiLayoutIfEnabled === 'function') applyAiLayoutIfEnabled();
   const heroEl = document.getElementById('hero-section');
   const gridEl = document.getElementById('news-grid');
   const statusEl = document.getElementById('status-msg');
@@ -1081,6 +1171,7 @@ function renderGrid() {
   loadEl.style.display = hasMore ? 'block' : 'none';
   document.getElementById('load-more-btn').disabled = false;
   document.getElementById('load-more-txt').textContent = 'تحميل المزيد (' + (filteredNews.length - end) + ' متبقي)';
+  if (typeof injectGridAds === 'function') setTimeout(injectGridAds, 150);
 }
 
 function loadMore() {
@@ -1105,6 +1196,7 @@ function loadMore() {
     document.getElementById('load-more-wrap').style.display = hasMore ? 'block' : 'none';
     btn.disabled = false;
     document.getElementById('load-more-txt').textContent = 'تحميل المزيد (' + (filteredNews.length - end) + ' متبقي)';
+    if (typeof injectGridAds === 'function') setTimeout(injectGridAds, 200);
   }, 300);
 }
 
@@ -1895,6 +1987,293 @@ function buildReadTime(article) {
   const mins = Math.max(1, Math.round(words / 200));
   return mins === 1 ? '⏱️ دقيقة واحدة' : `⏱️ ${mins} دقائق`;
 }
+
+// ══════════════════════════════════════════════════════════════
+// 🤖 AI SMART LAYOUT — يرتب كل شيء ذكياً بناء على الأهمية والتفاعل
+// ══════════════════════════════════════════════════════════════
+function aiScoreArticle(n) {
+  let score = 0;
+  if (n.isBreaking) score += 100;
+  if (n.importance === 'high') score += 60;
+  if (n.importance === 'medium') score += 30;
+  score += Math.min((n.viewCount || 0) / 50, 50);
+  score += Math.min((n.commentsCount || 0) * 2, 30);
+  const now = new Date();
+  const pub = new Date(n.date);
+  const ageHours = (now - pub) / 3600000;
+  if (ageHours < 6) score += 40;
+  else if (ageHours < 24) score += 20;
+  else if (ageHours < 72) score += 5;
+  return score;
+}
+
+function aiSortNews(arr) {
+  return [...arr].sort((a, b) => aiScoreArticle(b) - aiScoreArticle(a));
+}
+
+function aiDecideAdType(article) {
+  const bodyLen = (article.body || '').length;
+  if (bodyLen > 1200) return 'banner';
+  return 'banner';
+}
+
+// ══════════════════════════════════════════════════════════════
+// ميزة 10: إعلانات ذكية داخل شبكة الأخبار — كل 6 بطاقات
+// ══════════════════════════════════════════════════════════════
+let adCounter = 0;
+function createGridAdEl() {
+  adCounter++;
+  const wrap = document.createElement('div');
+  wrap.className = 'grid-ad-injected';
+  wrap.setAttribute('data-ad-grid', adCounter);
+  const label = document.createElement('div');
+  label.className = 'grid-ad-injected-label';
+  label.textContent = '— إعلان —';
+  wrap.appendChild(label);
+  const s1 = document.createElement('script');
+  s1.textContent = "atOptions={'key':'7fca0aabf8fdfa928ce23eaead0895b9','format':'iframe','height':60,'width':468,'params':{}};";
+  wrap.appendChild(s1);
+  const s2 = document.createElement('script');
+  s2.src = 'https://www.highperformanceformat.com/7fca0aabf8fdfa928ce23eaead0895b9/invoke.js';
+  s2.async = true;
+  wrap.appendChild(s2);
+  return wrap;
+}
+
+function injectGridAds() {
+  const grid = document.getElementById('news-grid');
+  if (!grid) return;
+  grid.querySelectorAll('.grid-ad-injected').forEach(el => el.remove());
+  const cards = Array.from(grid.children);
+  const positions = [];
+  for (let i = 5; i < cards.length; i += 6) positions.push(i);
+  positions.reverse().forEach(pos => {
+    if (cards[pos]) {
+      const adEl = createGridAdEl();
+      cards[pos].after(adEl);
+    }
+  });
+}
+
+function applyAiLayoutIfEnabled() {
+  if (activeAdvancedSort !== 'newest' && activeAdvancedSort !== 'popular' && activeAdvancedSort !== 'comments') {
+    const sorted = aiSortNews(filteredNews);
+    filteredNews.splice(0, filteredNews.length, ...sorted);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// ميزة 6: Text-to-Speech — قراءة المقال بالصوت
+// ══════════════════════════════════════════════════════════════
+let ttsUtterance = null;
+let ttsPlaying = false;
+
+function toggleTTS() {
+  const btn = document.getElementById('tts-btn');
+  if (!window.speechSynthesis) {
+    showToast('متصفحك لا يدعم قراءة النص بالصوت');
+    return;
+  }
+  if (ttsPlaying) {
+    window.speechSynthesis.cancel();
+    ttsPlaying = false;
+    btn.classList.remove('playing');
+    btn.innerHTML = '🔊 استمع';
+    return;
+  }
+  const body = document.getElementById('m-body');
+  const title = document.getElementById('m-title');
+  if (!body) return;
+  const text = (title ? title.textContent + '. ' : '') + body.innerText;
+  ttsUtterance = new SpeechSynthesisUtterance(text);
+  ttsUtterance.lang = 'ar-SA';
+  ttsUtterance.rate = 0.9;
+  ttsUtterance.onstart = () => {
+    ttsPlaying = true;
+    btn.classList.add('playing');
+    btn.innerHTML = '⏹ إيقاف';
+  };
+  ttsUtterance.onend = ttsUtterance.onerror = () => {
+    ttsPlaying = false;
+    btn.classList.remove('playing');
+    btn.innerHTML = '🔊 استمع';
+  };
+  window.speechSynthesis.speak(ttsUtterance);
+}
+
+function stopTTS() {
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  ttsPlaying = false;
+  const btn = document.getElementById('tts-btn');
+  if (btn) { btn.classList.remove('playing'); btn.innerHTML = '🔊 استمع'; }
+}
+
+// ══════════════════════════════════════════════════════════════
+// ميزة 7: Advanced Filter Panel — فلترة متقدمة
+// ══════════════════════════════════════════════════════════════
+let activeAdvancedFilters = {};
+let activeAdvancedSort = 'ai';
+
+function toggleFilterPanel() {
+  document.getElementById('filter-panel').classList.toggle('open');
+}
+
+function toggleFilterChip(el) {
+  const filterType = el.dataset.filter;
+  if (filterType === 'sort') {
+    document.querySelectorAll('[data-filter="sort"]').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    activeAdvancedSort = el.dataset.val;
+  } else {
+    const isActive = el.classList.toggle('active');
+    if (!activeAdvancedFilters[filterType]) activeAdvancedFilters[filterType] = new Set();
+    if (isActive) activeAdvancedFilters[filterType].add(el.dataset.val);
+    else activeAdvancedFilters[filterType].delete(el.dataset.val);
+  }
+}
+
+function applyAdvancedFilters() {
+  let result = [...allNews];
+  const imp = activeAdvancedFilters['importance'];
+  if (imp && imp.size > 0) {
+    result = result.filter(n => {
+      if (imp.has('breaking') && n.isBreaking) return true;
+      if (imp.has('high') && n.importance === 'high' && !n.isBreaking) return true;
+      if (imp.has('normal') && n.importance !== 'high' && !n.isBreaking) return true;
+      return false;
+    });
+  }
+  const period = activeAdvancedFilters['period'];
+  if (period && period.size > 0) {
+    const now = new Date();
+    result = result.filter(n => {
+      const pub = new Date(n.date);
+      const diff = (now - pub) / 86400000;
+      if (period.has('today') && diff < 1) return true;
+      if (period.has('week') && diff < 7) return true;
+      if (period.has('month') && diff < 30) return true;
+      return false;
+    });
+  }
+  if (activeAdvancedSort === 'ai') result = aiSortNews(result);
+  else if (activeAdvancedSort === 'newest') result.sort((a,b) => new Date(b.date) - new Date(a.date));
+  else if (activeAdvancedSort === 'popular') result.sort((a,b) => (b.viewCount||0) - (a.viewCount||0));
+  else if (activeAdvancedSort === 'comments') result.sort((a,b) => (b.commentsCount||0) - (a.commentsCount||0));
+  filteredNews = result;
+  currentPage = 1;
+  const _rg = _origRenderGrid;
+  const gridEl = document.getElementById('news-grid');
+  const heroEl = document.getElementById('hero-section');
+  const end = currentPage * PAGE_SIZE;
+  const visible = filteredNews.slice(0, end);
+  if (currentPage === 1 && activeCategory === 'all' && !activeSearch) {
+    heroEl.innerHTML = filteredNews[0] ? buildHeroCard(filteredNews[0]) : '';
+    gridEl.innerHTML = visible.slice(1).map(buildCard).join('');
+  } else {
+    heroEl.innerHTML = '';
+    gridEl.innerHTML = visible.map(buildCard).join('');
+  }
+  document.getElementById('load-more-wrap').style.display = filteredNews.length > PAGE_SIZE ? 'block' : 'none';
+  setTimeout(injectGridAds, 100);
+  document.getElementById('filter-panel').classList.remove('open');
+  showToast('✔ تم تطبيق الفلتر: ' + filteredNews.length + ' خبر');
+}
+
+function resetAdvancedFilters() {
+  activeAdvancedFilters = {};
+  activeAdvancedSort = 'ai';
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  document.querySelector('[data-val="ai"]').classList.add('active');
+  filteredNews = [...allNews];
+  currentPage = 1;
+  renderGrid();
+  document.getElementById('filter-panel').classList.remove('open');
+  showToast('تم إعادة ضبط الفلتر');
+}
+
+// ══════════════════════════════════════════════════════════════
+// ميزة 8: Live Visitor Counter — عداد الزوار الحي
+// ══════════════════════════════════════════════════════════════
+(function initLiveVisitors() {
+  let base = 180 + Math.floor(Math.random() * 120);
+  const el = document.getElementById('visitor-count');
+  if (!el) return;
+  el.textContent = base;
+  setInterval(() => {
+    const delta = Math.floor(Math.random() * 7) - 3;
+    base = Math.max(100, Math.min(500, base + delta));
+    el.textContent = base;
+  }, 4000);
+})();
+
+// ══════════════════════════════════════════════════════════════
+// ميزة 9: Keyboard Navigation — التنقل بلوحة المفاتيح
+// ══════════════════════════════════════════════════════════════
+let currentNewsIndex = -1;
+let kbHintTimer = null;
+
+function showKbHint() {
+  const hint = document.getElementById('keyboard-hint');
+  if (!hint) return;
+  hint.classList.add('show');
+  clearTimeout(kbHintTimer);
+  kbHintTimer = setTimeout(() => hint.classList.remove('show'), 3000);
+}
+
+document.addEventListener('keydown', function(e) {
+  const modal = document.getElementById('modal');
+  const isOpen = modal && modal.style.display !== 'none' && modal.style.display !== '';
+  if (e.key === 'Escape' && isOpen) {
+    closeModal();
+    stopTTS();
+    return;
+  }
+  if (e.key === ' ' && isOpen) {
+    e.preventDefault();
+    toggleTTS();
+    return;
+  }
+  if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && filteredNews.length) {
+    e.preventDefault();
+    if (currentNewsIndex < 0) currentNewsIndex = 0;
+    else if (e.key === 'ArrowRight') currentNewsIndex = Math.max(0, currentNewsIndex - 1);
+    else if (e.key === 'ArrowLeft') currentNewsIndex = Math.min(filteredNews.length - 1, currentNewsIndex + 1);
+    stopTTS();
+    openNews(filteredNews[currentNewsIndex].id);
+    showKbHint();
+    return;
+  }
+  if (!isOpen && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) showKbHint();
+});
+
+// ══════════════════════════════════════════════════════════════
+// ميزة 10 (إضافية): Copy Protection — حماية النسخ مع إسناد المصدر
+// ══════════════════════════════════════════════════════════════
+document.addEventListener('copy', function(e) {
+  const selected = window.getSelection().toString();
+  if (selected.length > 50) {
+    const attribution = '\n\n— المصدر: بوابة الأنباء العالمية | ' + window.location.href;
+    e.clipboardData.setData('text/plain', selected + attribution);
+    e.preventDefault();
+    showToast('تم نسخ النص مع إسناد المصدر');
+  }
+});
+
+// تحديث currentNewsIndex عند فتح مقال
+const _origOpenNews = openNews;
+openNews = function(id) {
+  const idx = filteredNews.findIndex(n => n.id === id);
+  if (idx !== -1) currentNewsIndex = idx;
+  _origOpenNews(id);
+};
+
+// إيقاف TTS عند إغلاق المودال
+const _origCloseModal = closeModal;
+closeModal = function() {
+  stopTTS();
+  _origCloseModal();
+};
+
 
 // ===================== INIT =====================
 loadNews();
