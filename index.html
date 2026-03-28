@@ -414,6 +414,35 @@ body{padding-bottom:80px}
 html,body{overflow-x:hidden;max-width:100vw}
 *{box-sizing:border-box}
 
+/* ═══ إصلاحات الهاتف الشاملة ═══ */
+/* المودال - تمرير سلس على iOS */
+.modal-overlay{-webkit-overflow-scrolling:touch}
+.modal{-webkit-overflow-scrolling:touch}
+
+/* لوحة الفلتر - تمرير أفقي للشرائح */
+#filter-panel{max-height:60vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.filter-row{overflow-x:auto;flex-wrap:nowrap!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px}
+.filter-row::-webkit-scrollbar{display:none}
+
+/* شريط التصفح - تمرير سلس */
+.nav-bar{-webkit-overflow-scrolling:touch}
+.nav-inner{-webkit-overflow-scrolling:touch}
+
+/* أزرار - حجم لمسة أكبر على الهاتف */
+@media(max-width:600px){
+  .btn-icon{min-width:40px;min-height:40px;display:flex;align-items:center;justify-content:center}
+  .nav-btn{min-height:38px;padding:6px 12px;white-space:nowrap}
+  .filter-chip{white-space:nowrap;min-height:34px;display:inline-flex;align-items:center}
+  .filter-btn-apply,.filter-btn-reset{min-height:40px;padding:10px 16px}
+  .share-btn{min-height:38px}
+  .reaction-btn{min-height:38px}
+  /* تأكيد ظهور أزرار المودال */
+  .modal-close{width:40px;height:40px;font-size:1.3rem}
+  /* البحث يملأ العرض */
+  .search-box{flex:1}
+  .search-box input{width:100%;min-width:80px}
+}
+
 /* ═══════════════════════════════════════
    ميزة 1: PWA زر التثبيت
 ═══════════════════════════════════════ */
@@ -552,7 +581,7 @@ html,body{overflow-x:hidden;max-width:100vw}
     </a>
     <div class="header-actions">
       <div class="search-box">
-        <input type="search" id="search-input" placeholder="ابحث في الأخبار..." onkeyup="handleSearch(event)">
+        <input type="search" id="search-input" placeholder="ابحث في الأخبار..." onkeyup="handleSearch(event)" oninput="handleSearchInput(this.value)">
         <button onclick="doSearch()">🔍</button>
       </div>
       <div class="live-clock" id="live-clock">--:--:--</div>
@@ -1102,6 +1131,12 @@ function filterCategory(cat, btn) {
 // ===================== SEARCH =====================
 function handleSearch(e) {
   if (e.key === 'Enter') doSearch();
+}
+let _searchTimer;
+function handleSearchInput(val) {
+  clearTimeout(_searchTimer);
+  if (!val.trim()) { clearSearch(); return; }
+  _searchTimer = setTimeout(doSearch, 400);
 }
 function doSearch() {
   const q = document.getElementById('search-input').value.trim();
