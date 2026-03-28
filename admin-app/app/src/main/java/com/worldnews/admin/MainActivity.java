@@ -91,5 +91,40 @@ public class MainActivity extends AppCompatActivity {
         public String getAppVersion() {
             return BuildConfig.VERSION_NAME;
         }
+
+        @JavascriptInterface
+        public void openUrl(String url) {
+            runOnUiThread(() -> {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "لا يمكن فتح الرابط", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void copyToClipboard(String text) {
+            runOnUiThread(() -> {
+                android.content.ClipboardManager cm = (android.content.ClipboardManager)
+                    getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                if (cm != null) {
+                    cm.setPrimaryClip(android.content.ClipData.newPlainText("text", text));
+                    Toast.makeText(MainActivity.this, "تم النسخ", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public String getClipboard() {
+            android.content.ClipboardManager cm = (android.content.ClipboardManager)
+                getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+            if (cm != null && cm.hasPrimaryClip()) {
+                android.content.ClipData.Item item = cm.getPrimaryClip().getItemAt(0);
+                return item != null ? item.getText().toString() : "";
+            }
+            return "";
+        }
     }
 }
